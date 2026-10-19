@@ -23,6 +23,12 @@ export default async function AdminPage() {
         </div>
         <div className="flex items-center gap-3">
           <Link
+            href="/admin/configuracoes"
+            className="rounded-full border-2 border-zinc-200 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-zinc-600 hover:border-zinc-400"
+          >
+            Configurações do site
+          </Link>
+          <Link
             href="/admin/produtos/novo"
             className="rounded-full bg-[#ffd400] px-5 py-2.5 text-sm font-black uppercase tracking-wide text-[#0b1b42] hover:bg-[#0b1b42] hover:text-[#ffd400]"
           >

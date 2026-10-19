@@ -63,7 +63,7 @@ export async function getCategories(): Promise<string[]> {
   return Array.from(new Set(products.map((product) => product.category)));
 }
 
-function slugify(value: string): string {
+export function slugify(value: string): string {
   return value
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
@@ -72,17 +72,22 @@ function slugify(value: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
+function uniqueSlug(products: Product[], desired: string, excludeId?: string): string {
+  const baseSlug = slugify(desired);
+  let slug = baseSlug || "produto";
+  let suffix = 2;
+  while (products.some((p) => p.slug === slug && p.id !== excludeId)) {
+    slug = `${baseSlug}-${suffix}`;
+    suffix += 1;
+  }
+  return slug;
+}
+
 export async function createProduct(
   data: Omit<Product, "id" | "slug"> & { slug?: string }
 ): Promise<Product> {
   const products = await readAll();
-  const baseSlug = slugify(data.slug || data.name);
-  let slug = baseSlug;
-  let suffix = 2;
-  while (products.some((p) => p.slug === slug)) {
-    slug = `${baseSlug}-${suffix}`;
-    suffix += 1;
-  }
+  const slug = uniqueSlug(products, data.slug || data.name);
   const nextId = String(
     products.reduce((max, p) => Math.max(max, Number(p.id) || 0), 0) + 1
   );
@@ -90,6 +95,14 @@ export async function createProduct(
   products.push(product);
   await writeAll(products);
   return product;
+}
+
+export async function resolveProductSlug(
+  desired: string,
+  excludeId: string
+): Promise<string> {
+  const products = await readAll();
+  return uniqueSlug(products, desired, excludeId);
 }
 
 export async function updateProduct(

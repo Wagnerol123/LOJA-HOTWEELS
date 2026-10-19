@@ -18,11 +18,13 @@ export default function ProductForm({
   submitLabel: string;
 }) {
   const [preview, setPreview] = useState<string | null>(product?.image ?? null);
+  const [removeImage, setRemoveImage] = useState(false);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
       setPreview(URL.createObjectURL(file));
+      setRemoveImage(false);
     }
   }
 
@@ -57,16 +59,15 @@ export default function ProductForm({
           </datalist>
         </label>
 
-        {!product && (
-          <label className="flex flex-col gap-1 text-sm font-bold text-zinc-700">
-            Slug (opcional)
-            <input
-              name="slug"
-              className="rounded-lg border-2 border-zinc-200 px-3 py-2 font-normal"
-              placeholder="gerado automaticamente a partir do nome"
-            />
-          </label>
-        )}
+        <label className="flex flex-col gap-1 text-sm font-bold text-zinc-700">
+          Slug (endereço na URL)
+          <input
+            name="slug"
+            defaultValue={product?.slug}
+            className="rounded-lg border-2 border-zinc-200 px-3 py-2 font-normal"
+            placeholder="gerado automaticamente a partir do nome"
+          />
+        </label>
 
         <label className="flex flex-col gap-1 text-sm font-bold text-zinc-700">
           Escala
@@ -177,7 +178,7 @@ export default function ProductForm({
       <div>
         <span className="text-sm font-bold text-zinc-700">Foto do produto</span>
         <div className="mt-2 flex items-center gap-4">
-          {preview && (
+          {preview && !removeImage && (
             <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-zinc-200">
               <Image
                 src={preview}
@@ -199,6 +200,18 @@ export default function ProductForm({
         <p className="mt-1 text-xs text-zinc-500">
           Envie uma foto real do carrinho. Se nenhuma imagem for enviada, é usada uma ilustração padrão.
         </p>
+        {product?.image && (
+          <label className="mt-2 flex items-center gap-2 text-xs font-bold text-zinc-600">
+            <input
+              type="checkbox"
+              name="removeImage"
+              value="1"
+              checked={removeImage}
+              onChange={(e) => setRemoveImage(e.target.checked)}
+            />
+            Remover foto atual (voltar para ilustração padrão)
+          </label>
+        )}
       </div>
 
       <button

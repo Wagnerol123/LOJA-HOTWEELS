@@ -19,3 +19,17 @@ export interface CartItem {
   productId: string;
   quantity: number;
 }
+
+export interface SiteSettings {
+  siteName: string;
+  metaDescription: string;
+  heroBadge: string;
+  heroTitle: string;
+  heroDescription: string;
+  heroPrimaryCta: string;
+  heroSecondaryCta: string;
+  categoriesTitle: string;
+  featuredTitle: string;
+  footerDisclaimer: string;
+  footerCopyright: string;
+}

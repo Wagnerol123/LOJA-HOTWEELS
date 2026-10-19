@@ -6,7 +6,7 @@ import { useState, FormEvent } from "react";
 import { useCart } from "./CartProvider";
 import Logo from "./Logo";
 
-export default function Header() {
+export default function Header({ siteName }: { siteName: string }) {
   const { totalItems } = useCart();
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -24,7 +24,7 @@ export default function Header() {
         <Link href="/" className="flex items-center gap-2">
           <Logo className="h-11 w-11 shrink-0" />
           <span className="hidden text-lg font-black uppercase italic tracking-tight text-white sm:inline sm:text-xl">
-            Universo Colecionável
+            {siteName}
           </span>
         </Link>
 

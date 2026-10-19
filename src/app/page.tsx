@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getProducts, getCategories } from "@/lib/products";
+import { getSettings } from "@/lib/settings";
 import ProductCard from "@/components/ProductCard";
 import Logo from "@/components/Logo";
 import CarIcon from "@/components/CarIcon";
@@ -14,7 +15,11 @@ const categoryStyles: Record<string, { color: string; accent: string }> = {
 };
 
 export default async function Home() {
-  const [products, categories] = await Promise.all([getProducts(), getCategories()]);
+  const [products, categories, settings] = await Promise.all([
+    getProducts(),
+    getCategories(),
+    getSettings(),
+  ]);
   const featured = products.slice(0, 4);
 
   return (
@@ -39,28 +44,26 @@ export default async function Home() {
         <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-16 text-center sm:px-6 lg:flex-row lg:text-left">
           <div className="flex-1">
             <span className="rounded-full bg-[#ffd400] px-3 py-1 text-xs font-black uppercase tracking-widest text-[#0b1b42]">
-              Coleção 2026
+              {settings.heroBadge}
             </span>
             <h1 className="mt-4 text-4xl font-black uppercase italic leading-tight text-white sm:text-5xl">
-              Velocidade em escala 1:64
+              {settings.heroTitle}
             </h1>
             <p className="mt-4 max-w-md text-base font-medium text-white/80">
-              Carrinhos colecionáveis com acabamento em metal fundido, rodas de liga e
-              pintura exclusiva. Monte sua coleção com lançamentos, edições limitadas e
-              raridades.
+              {settings.heroDescription}
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
               <Link
                 href="/produtos"
                 className="rounded-full bg-[#ffd400] px-6 py-3 text-sm font-black uppercase tracking-wide text-[#0b1b42] transition-transform hover:scale-105"
               >
-                Ver catálogo
+                {settings.heroPrimaryCta}
               </Link>
               <Link
                 href="/produtos?categoria=Edi%C3%A7%C3%A3o%20Especial"
                 className="rounded-full border-2 border-white px-6 py-3 text-sm font-black uppercase tracking-wide text-white transition-transform hover:scale-105"
               >
-                Edições especiais
+                {settings.heroSecondaryCta}
               </Link>
             </div>
           </div>
@@ -73,7 +76,7 @@ export default async function Home() {
       <section className="bg-gradient-to-b from-[#3b8ff0] to-[#eef4ff] px-4 py-14 sm:px-6">
         <div className="mx-auto max-w-6xl">
           <h2 className="mb-8 text-center text-2xl font-black uppercase italic text-white sm:text-3xl">
-            Comprar por categorias principais
+            {settings.categoriesTitle}
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {categories.map((category) => {
@@ -98,7 +101,7 @@ export default async function Home() {
       <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-black uppercase italic text-zinc-900">
-            Lançamentos
+            {settings.featuredTitle}
           </h2>
           <Link
             href="/produtos"

@@ -8,6 +8,7 @@ import {
   deleteProduct,
   getProductById,
   saveProductImage,
+  resolveProductSlug,
 } from "@/lib/products";
 
 function parseDetails(raw: string): string[] {
@@ -79,17 +80,24 @@ export async function updateProductAction(id: string, formData: FormData) {
     redirect(`/admin/produtos/${id}?erro=1`);
   }
 
+  const slugInput = String(formData.get("slug") || "").trim();
+  const slug = await resolveProductSlug(slugInput || fields.name, id);
+
   let image = current.image;
   const imageFile = formData.get("image");
+  const removeImage = formData.get("removeImage") === "1";
   if (imageFile instanceof File && imageFile.size > 0) {
-    image = await saveProductImage(imageFile, current.slug);
+    image = await saveProductImage(imageFile, slug);
+  } else if (removeImage) {
+    image = undefined;
   }
 
-  await updateProduct(id, { ...fields, image });
+  await updateProduct(id, { ...fields, slug, image });
 
   revalidatePath("/");
   revalidatePath("/produtos");
   revalidatePath(`/produtos/${current.slug}`);
+  revalidatePath(`/produtos/${slug}`);
   revalidatePath("/admin");
   redirect("/admin");
 }

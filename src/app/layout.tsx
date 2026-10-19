@@ -4,6 +4,7 @@ import "./globals.css";
 import { CartProvider } from "@/components/CartProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { getSettings } from "@/lib/settings";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,13 +16,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Universo Colecionável | Carrinhos colecionáveis",
-  description:
-    "Loja fictícia de carrinhos colecionáveis estilo Hot Wheels: street, muscle, rally, SUV e edições especiais.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+  return {
+    title: `${settings.siteName} | Carrinhos colecionáveis`,
+    description: settings.metaDescription,
+  };
+}
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const settings = await getSettings();
+
   return (
     <html
       lang="pt-BR"
@@ -29,9 +34,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col">
         <CartProvider>
-          <Header />
+          <Header siteName={settings.siteName} />
           <main className="flex-1">{children}</main>
-          <Footer />
+          <Footer
+            siteName={settings.siteName}
+            disclaimer={settings.footerDisclaimer}
+            copyright={settings.footerCopyright}
+          />
         </CartProvider>
       </body>
     </html>
