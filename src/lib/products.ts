@@ -15,7 +15,7 @@ async function readAll(): Promise<Product[]> {
   if (blobEnabled()) {
     try {
       const meta = await head(BLOB_DATA_PATHNAME);
-      const res = await fetch(meta.url, { cache: "no-store" });
+      const res = await fetch(`${meta.url}?t=${Date.now()}`, { cache: "no-store" });
       return (await res.json()) as Product[];
     } catch (err) {
       if (err instanceof BlobNotFoundError) {
@@ -38,6 +38,7 @@ async function writeAll(products: Product[]): Promise<void> {
       addRandomSuffix: false,
       allowOverwrite: true,
       contentType: "application/json",
+      cacheControlMaxAge: 0,
     });
     return;
   }
