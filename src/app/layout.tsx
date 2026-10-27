@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col">
         <CartProvider>
-          <Header siteName={settings.siteName} />
+          <Header siteName={settings.siteName} logo={settings.logo} />
           <main className="flex-1">{children}</main>
           <Footer
             siteName={settings.siteName}

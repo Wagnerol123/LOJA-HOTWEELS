@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { updateSettings } from "@/lib/settings";
+import { getSettings, updateSettings, saveSiteImage } from "@/lib/settings";
 import { SiteSettings } from "@/lib/types";
 
 function field(formData: FormData, key: keyof SiteSettings): string {
@@ -10,8 +10,11 @@ function field(formData: FormData, key: keyof SiteSettings): string {
 }
 
 export async function updateSettingsAction(formData: FormData) {
+  const current = await getSettings();
+
   const settings: SiteSettings = {
     siteName: field(formData, "siteName"),
+    logo: current.logo,
     metaDescription: field(formData, "metaDescription"),
     heroBadge: field(formData, "heroBadge"),
     heroTitle: field(formData, "heroTitle"),
@@ -26,6 +29,14 @@ export async function updateSettingsAction(formData: FormData) {
 
   if (!settings.siteName || !settings.heroTitle) {
     redirect("/admin/configuracoes?erro=1");
+  }
+
+  const logoFile = formData.get("logo");
+  const removeLogo = formData.get("removeLogo") === "1";
+  if (logoFile instanceof File && logoFile.size > 0) {
+    settings.logo = await saveSiteImage(logoFile, "logo");
+  } else if (removeLogo) {
+    settings.logo = undefined;
   }
 
   await updateSettings(settings);

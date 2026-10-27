@@ -1,12 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, FormEvent } from "react";
 import { useCart } from "./CartProvider";
 import Logo from "./Logo";
 
-export default function Header({ siteName }: { siteName: string }) {
+export default function Header({
+  siteName,
+  logo,
+}: {
+  siteName: string;
+  logo?: string;
+}) {
   const { totalItems } = useCart();
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -22,7 +29,13 @@ export default function Header({ siteName }: { siteName: string }) {
     <header className="sticky top-0 z-50 bg-[#0b1b42]">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <Logo className="h-11 w-11 shrink-0" />
+          {logo ? (
+            <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-white/10">
+              <Image src={logo} alt={siteName} fill className="object-contain p-1" />
+            </span>
+          ) : (
+            <Logo className="h-11 w-11 shrink-0" />
+          )}
           <span className="hidden text-lg font-black uppercase italic tracking-tight text-white sm:inline sm:text-xl">
             {siteName}
           </span>

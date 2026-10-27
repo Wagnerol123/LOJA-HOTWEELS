@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getProducts, getCategories } from "@/lib/products";
 import { getSettings } from "@/lib/settings";
 import ProductCard from "@/components/ProductCard";
@@ -68,7 +69,18 @@ export default async function Home() {
             </div>
           </div>
           <div className="flex flex-1 items-center justify-center">
-            <Logo className="h-52 w-52 drop-shadow-2xl sm:h-60 sm:w-60" />
+            {settings.logo ? (
+              <div className="relative h-52 w-52 drop-shadow-2xl sm:h-60 sm:w-60">
+                <Image
+                  src={settings.logo}
+                  alt={settings.siteName}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            ) : (
+              <Logo className="h-52 w-52 drop-shadow-2xl sm:h-60 sm:w-60" />
+            )}
           </div>
         </div>
       </section>

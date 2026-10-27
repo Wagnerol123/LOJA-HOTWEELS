@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSettings } from "@/lib/settings";
 import { updateSettingsAction } from "../settings-actions";
+import LogoField from "@/components/admin/LogoField";
 
 export default async function SettingsPage({
   searchParams,
@@ -47,6 +48,8 @@ export default async function SettingsPage({
             className="rounded-lg border-2 border-zinc-200 px-3 py-2 font-normal"
           />
         </label>
+
+        <LogoField currentLogo={settings.logo} />
 
         <label className="flex flex-col gap-1 text-sm font-bold text-zinc-700">
           Descrição para buscadores (SEO)

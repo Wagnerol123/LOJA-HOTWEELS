@@ -31,6 +31,25 @@ export async function getSettings(): Promise<SiteSettings> {
   return JSON.parse(raw) as SiteSettings;
 }
 
+export async function saveSiteImage(file: File, name: string): Promise<string> {
+  const ext = path.extname(file.name).toLowerCase() || ".png";
+  const filename = `${name}-${Date.now()}${ext}`;
+
+  if (blobEnabled()) {
+    const blob = await put(`site/${filename}`, file, {
+      access: "public",
+      addRandomSuffix: true,
+    });
+    return blob.url;
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const uploadDir = path.join(process.cwd(), "public", "site");
+  await fs.mkdir(uploadDir, { recursive: true });
+  await fs.writeFile(path.join(uploadDir, filename), buffer);
+  return `/site/${filename}`;
+}
+
 export async function updateSettings(settings: SiteSettings): Promise<void> {
   if (blobEnabled()) {
     await put(BLOB_DATA_PATHNAME, JSON.stringify(settings, null, 2), {

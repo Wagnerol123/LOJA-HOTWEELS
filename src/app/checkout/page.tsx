@@ -5,16 +5,14 @@ import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
 import { formatPrice } from "@/lib/format";
 
-function randomOrderNumber() {
-  return `UC-${Math.floor(100000 + Math.random() * 900000)}`;
-}
-
 export default function CheckoutPage() {
   const { items, catalog, totalPrice, clearCart } = useCart();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const rows = items
     .map((item) => {
@@ -23,11 +21,40 @@ export default function CheckoutPage() {
     })
     .filter((row): row is { item: (typeof items)[number]; product: NonNullable<(typeof catalog)[number]> } => row !== null);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const number = randomOrderNumber();
-    setOrderNumber(number);
-    clearCart();
+    setError(null);
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: name,
+          email,
+          address,
+          items: rows.map(({ item, product }) => ({
+            productId: product.id,
+            name: product.name,
+            quantity: item.quantity,
+            price: product.price,
+          })),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Falha ao registrar o pedido.");
+      }
+
+      const data = await res.json();
+      setOrderNumber(data.orderNumber);
+      clearCart();
+    } catch {
+      setError("Não foi possível registrar o pedido. Tente novamente.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (orderNumber) {
@@ -40,8 +67,9 @@ export default function CheckoutPage() {
           Obrigado pela compra, {name || "colecionador"}!
         </h1>
         <p className="text-sm text-zinc-600">
-          Seu pedido <strong>{orderNumber}</strong> foi registrado nesta demonstração.
-          Nenhuma cobrança real foi realizada — este é um projeto fictício de estudo.
+          Seu pedido <strong>{orderNumber}</strong> foi registrado e está aguardando
+          confirmação do lojista. Nenhuma cobrança real foi realizada — este é um projeto
+          fictício de estudo.
         </p>
         <Link
           href="/produtos"
@@ -78,7 +106,7 @@ export default function CheckoutPage() {
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-            Dados de entrega (demonstração — nenhuma informação é enviada a um servidor)
+            Dados de entrega — o lojista receberá essas informações no painel administrativo
           </p>
           <label className="flex flex-col gap-1 text-sm font-bold text-zinc-700">
             Nome completo
@@ -113,11 +141,14 @@ export default function CheckoutPage() {
             />
           </label>
 
+          {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
+
           <button
             type="submit"
-            className="mt-2 rounded-full bg-[#ffd400] px-6 py-3 text-sm font-black uppercase tracking-wide text-[#0b1b42] hover:bg-[#0b1b42] hover:text-[#ffd400]"
+            disabled={submitting}
+            className="mt-2 rounded-full bg-[#ffd400] px-6 py-3 text-sm font-black uppercase tracking-wide text-[#0b1b42] hover:bg-[#0b1b42] hover:text-[#ffd400] disabled:opacity-60"
           >
-            Confirmar pedido
+            {submitting ? "Enviando..." : "Confirmar pedido"}
           </button>
         </form>
 

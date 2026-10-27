@@ -1,13 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getProducts } from "@/lib/products";
+import { getOrders } from "@/lib/orders";
 import { formatPrice } from "@/lib/format";
 import { deleteProductAction } from "./actions";
 import { logoutAction } from "./login/actions";
 import DeleteProductForm from "@/components/admin/DeleteProductForm";
 
 export default async function AdminPage() {
-  const products = await getProducts();
+  const [products, orders] = await Promise.all([getProducts(), getOrders()]);
+  const pendingOrders = orders.filter((o) => o.status === "pendente").length;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -22,6 +24,17 @@ export default async function AdminPage() {
           <p className="text-sm text-zinc-500">{products.length} produtos cadastrados</p>
         </div>
         <div className="flex items-center gap-3">
+          <Link
+            href="/admin/pedidos"
+            className="relative rounded-full border-2 border-zinc-200 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-zinc-600 hover:border-zinc-400"
+          >
+            Pedidos
+            {pendingOrders > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-black text-white">
+                {pendingOrders}
+              </span>
+            )}
+          </Link>
           <Link
             href="/admin/configuracoes"
             className="rounded-full border-2 border-zinc-200 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-zinc-600 hover:border-zinc-400"
