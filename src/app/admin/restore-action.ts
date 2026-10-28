@@ -93,14 +93,20 @@ const ORIGINAL_PRODUCTS: Omit<Product, "id">[] = [
   },
 ];
 
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function restoreMissingProductsAction() {
   const current = await getProducts();
   const existingSlugs = new Set(current.map((p) => p.slug));
+  const missing = ORIGINAL_PRODUCTS.filter((p) => !existingSlugs.has(p.slug));
 
-  for (const product of ORIGINAL_PRODUCTS) {
-    if (!existingSlugs.has(product.slug)) {
-      await createProduct(product);
-    }
+  for (const product of missing) {
+    await createProduct(product);
+    // Small delay so each write has time to propagate before the next
+    // read-modify-write cycle, avoiding lost updates on the JSON store.
+    await wait(600);
   }
 
   revalidatePath("/");
